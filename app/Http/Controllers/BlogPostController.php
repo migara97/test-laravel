@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
-
+use RealRashid\SweetAlert\Facades\Alert;
 class BlogPostController extends Controller
 {
     public function index()
     {
-        $posts = BlogPost::all();
+        $posts = BlogPost::paginate(5);
         return view('post.index', compact('posts'));
     }
 
@@ -20,17 +20,26 @@ class BlogPostController extends Controller
 
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'title' => 'required|max:255',
-            'content' => 'required',
-        ]);
-
-        $post = new BlogPost();
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
-        $post->save();
-
-        return redirect()->route('posts.index');
+        try {
+            $this->validate($request, [
+                'title' => 'required|max:255',
+                'content' => 'required',
+            ]);
+    
+            $post = new BlogPost();
+            $post->title = $request->input('title');
+            $post->content = $request->input('content');
+            $post->save();
+    
+            Alert::success('Success', 'Blog Post Created Successfully!');
+    
+            return redirect()->route('posts.index');
+        } catch (\Throwable $th) {
+            Alert::error('Error', 'Blog Post Created Unsuccessfully!');
+    
+            return redirect()->route('posts.index');
+        }
+        
     }
 
     public function edit($id)
@@ -41,24 +50,38 @@ class BlogPostController extends Controller
 
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'title' => 'required|max:255',
-            'content' => 'required',
-        ]);
-
-        $post = BlogPost::find($id);
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
-        $post->save();
-
-        return redirect()->route('posts.index');
+        try {
+            $this->validate($request, [
+                'title' => 'required|max:255',
+                'content' => 'required',
+            ]);
+    
+            $post = BlogPost::find($id);
+            $post->title = $request->input('title');
+            $post->content = $request->input('content');
+            $post->save();
+    
+            Alert::success('Updated', 'Blog Post Update Successfully!');
+            return redirect()->route('posts.index');
+        } catch (\Throwable $th) {
+            Alert::error('Error', 'Blog Post Update Unsuccessfully!');
+    
+            return redirect()->route('posts.index');
+        }
     }
 
     public function destroy($id)
     {
-        $post = BlogPost::findOrFail($id);
-        $post->delete();
+        try {
+            $post = BlogPost::findOrFail($id);
+            $post->delete();
 
-        return redirect()->route('posts.index');
+            Alert::success('Deleted', 'Blog Post Delete Successfully!');
+            return redirect()->route('posts.index');
+        } catch (\Throwable $th) {
+            Alert::error('Error', 'Blog Post Delete Unsuccessfully!');
+    
+            return redirect()->route('posts.index');
+        }
     }
 }

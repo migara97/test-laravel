@@ -13,8 +13,8 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
-                    {{ __('You are logged in!') }}
+                    <a href="{{ route('posts.index') }}" class="btn btn-primary mb-4">Create New Post</a>
+                    {{-- {{ __('You are logged in!') }} --}}
                 </div>
             </div>
         </div>
